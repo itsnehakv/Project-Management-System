@@ -20,6 +20,7 @@ const initialState = {
   workspaces: [],
   currentWorkspace: null,
   loading: false,
+  hasFetched: false,
 };
 
 const workspaceSlice = createSlice({
@@ -150,17 +151,21 @@ const workspaceSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchWorkspaces.pending, (state) => {
-      state.loading = true; //* From const initialState
+      if (!state.loading) state.loading = true;
     });
     builder.addCase(fetchWorkspaces.fulfilled, (state, action) => {
       state.workspaces = action.payload;
+      state.hasFetched = true;
+      state.loading = false;
+
       if (action.payload.length > 0) {
         const localStorageCurrentWorkspaceId =
           localStorage.getItem("currentWorkspaceId");
+
         if (localStorageCurrentWorkspaceId) {
-          const findWorkspace = action.payload.find((w) => {
-            w.id === localStorageCurrentWorkspaceId;
-          });
+          const findWorkspace = action.payload.find(
+            (w) => w.id === localStorageCurrentWorkspaceId
+          );
           if (findWorkspace) {
             state.currentWorkspace = findWorkspace;
           } else {
