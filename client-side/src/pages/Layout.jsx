@@ -5,18 +5,28 @@ import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loadTheme } from "../features/themeSlice";
 import { Loader2Icon } from "lucide-react";
-import { useUser, SignIn } from "@clerk/clerk-react";
+import { useUser, SignIn, useAuth } from "@clerk/clerk-react";
+import { fetchWorkspaces } from "../features/workspaceSlice";
 
 const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { loading } = useSelector((state) => state.workspace);
+  const { loading, workspaces } = useSelector((state) => state.workspace);
   const dispatch = useDispatch();
   const { user, isLoaded } = useUser();
+  const { getToken } = useAuth(); //& From clerk
 
   // Initial load of theme
   useEffect(() => {
     dispatch(loadTheme());
   }, []);
+
+  // Initial load of workspaces
+  //& If user is loaded and workspaces not loaded yet
+  useEffect(() => {
+    if (isLoaded && user && workspaces.length === 0) {
+      dispatch(fetchWorkspaces({ getToken }));
+    }
+  });
 
   //& So that navbar and sidebar aren't shown before user logged in
   if (!user) {
