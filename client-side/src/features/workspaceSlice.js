@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { dummyWorkspaces } from "../assets/assets";
 import api from "../configs/api";
 
-export const fetchWorkspaces = () =>
-  createAsyncThunk("wprkspaces/fetchWorkspaces", async ({ getToken }) => {
+export const fetchWorkspaces = createAsyncThunk(
+  "workspaces/fetchWorkspaces",
+  async ({ getToken }) => {
     try {
       const { data } = await api.get("/api/workspaces", {
         headers: { Authorization: `Bearer ${await getToken()}` },
@@ -13,7 +13,8 @@ export const fetchWorkspaces = () =>
       console.log(error?.response?.data?.message || error.message);
       return [];
     }
-  });
+  }
+);
 
 const initialState = {
   workspaces: [],
